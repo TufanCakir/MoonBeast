@@ -12,3 +12,7 @@ struct SpriteListView: View {
         PlaceholderTabView(title: "Sprites", systemImage: "person.3.fill")
     }
 }
+
+#Preview {
+    SpriteListView()
+}

@@ -26,6 +26,7 @@
                 "green": 0.95,
                 "blue": 1.0
             },
+            "groundImageName": "ground_colorfull",
             "animationSpeed": 2.0,
             "glowIntensity": 2.0,
             "gridIntensity": 2.0,
@@ -301,6 +302,6 @@
             "gridIntensity": 2.0,
             "scanlineIntensity": 2.0,
             "isAnimated": false
-        },
+        }
     ]
 }

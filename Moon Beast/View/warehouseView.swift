@@ -10,5 +10,9 @@ struct warehouseView: View {
         PlaceholderTabView(title: "Bag", systemImage: "shippingbox.fill")
     }
 }
+
+#Preview {
+    warehouseView()
+}
 //  Created by Tufan Cakir on 07.08.26.
 //

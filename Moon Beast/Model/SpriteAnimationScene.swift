@@ -12,8 +12,7 @@ final class SpriteAnimationScene: SKScene {
     private let arena: ArenaConfiguration
     private let spriteSheets: [SpriteSheet]
     private var characters: [CharacterInstance] = []
-    private var unlockedSpriteCount = 1
-    private let ground = SKNode()
+    private var unlockedSpriteIndices: Set<Int> = []
     private let gridColumns = 5
     private let gridCellWidthRatio: CGFloat = 0.15
     private let gridCellHeightRatio: CGFloat = 0.18
@@ -45,28 +44,20 @@ final class SpriteAnimationScene: SKScene {
 
     override func didMove(to view: SKView) {
         backgroundColor = .clear
-        physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
 
-        if ground.parent == nil { addChild(ground) }
         setupCharactersIfNeeded()
 
         layoutCharacters()
-        setupGround()
     }
 
-    func updateUnlockedSpriteCount(_ count: Int) {
-        unlockedSpriteCount = min(max(count, 1), max(spriteSheets.count, 1))
+    func updateUnlockedSpriteIndices(_ indices: Set<Int>) {
+        unlockedSpriteIndices = indices
         updateCharacterVisibility()
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
         super.didChangeSize(oldSize)
         layoutCharacters()
-        setupGround()
-    }
-
-    override func didSimulatePhysics() {
-        updateShadowPositions()
     }
 
     private func setupCharactersIfNeeded() {
@@ -82,12 +73,15 @@ final class SpriteAnimationScene: SKScene {
 
             let shadow = makeShadow()
             shadow.zPosition = 1
-            shadow.isHidden = index >= unlockedSpriteCount
+            shadow.isHidden = !unlockedSpriteIndices.contains(index)
 
-            node.isHidden = index >= unlockedSpriteCount
+            node.isHidden = !unlockedSpriteIndices.contains(index)
             addChild(shadow)
             addChild(node)
-            animation.start(on: node)
+
+            if unlockedSpriteIndices.contains(index) {
+                animation.start(on: node)
+            }
 
             return CharacterInstance(
                 index: index,
@@ -120,14 +114,6 @@ final class SpriteAnimationScene: SKScene {
             let yPosition = position.y
             character.node.position = position
             character.node.zPosition = zPosition(for: yPosition)
-            character.node.physicsBody = SKPhysicsBody(
-                rectangleOf: character.node.size,
-                center: CGPoint(x: 0, y: character.node.size.height / 2)
-            )
-            character.node.physicsBody?.isDynamic = false
-            character.node.physicsBody?.allowsRotation = false
-            character.node.physicsBody?.friction = 0.8
-            character.node.physicsBody?.restitution = 0.1
         }
 
         updateShadowPositions()
@@ -136,9 +122,17 @@ final class SpriteAnimationScene: SKScene {
 
     private func updateCharacterVisibility() {
         for character in characters {
-            let isUnlocked = character.index < unlockedSpriteCount
+            let isUnlocked = unlockedSpriteIndices.contains(character.index)
+            let wasHidden = character.node.isHidden
+
             character.node.isHidden = !isUnlocked
             character.shadow.isHidden = !isUnlocked
+
+            if isUnlocked && wasHidden {
+                character.animation.start(on: character.node)
+            } else if !isUnlocked && !wasHidden {
+                character.animation.stop(on: character.node)
+            }
         }
     }
 
@@ -215,14 +209,6 @@ final class SpriteAnimationScene: SKScene {
 
     private func zPosition(for yPosition: CGFloat) -> CGFloat {
         1_000 - yPosition
-    }
-
-    private func setupGround() {
-        ground.physicsBody = SKPhysicsBody(
-            edgeFrom: CGPoint(x: 0, y: gridBaseY),
-            to: CGPoint(x: size.width, y: gridBaseY)
-        )
-        ground.physicsBody?.isDynamic = false
     }
 
     private func makeShadow() -> SKShapeNode {

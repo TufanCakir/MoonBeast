@@ -13,8 +13,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea()
+            AppBackground()
 
             Button("Play") {
                 showGame = true
@@ -26,7 +25,7 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $showGame) {
             ZStack {
-                GameView()
+                GameView(progress: GameProgressStore())
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {

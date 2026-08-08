@@ -12,3 +12,7 @@ struct TradeView: View {
         PlaceholderTabView(title: "Trade", systemImage: "arrow.left.arrow.right")
     }
 }
+
+#Preview {
+    TradeView()
+}

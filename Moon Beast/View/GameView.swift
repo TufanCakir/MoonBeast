@@ -10,22 +10,25 @@ import SpriteKit
 
 struct GameView: View {
 
+    let progress: GameProgressStore
+    let onExit: (() -> Void)?
+
     private let arena: ArenaConfiguration
     
-    @State private var stage = 0
-    @State private var coins = 0
-    @State private var crystals = 0
-    @State private var pendingCoins = 0
-    @State private var pendingCrystals = 0
-    @State private var unlockedSpriteCount = 1
     @State private var scene: SpriteAnimationScene
     @State private var selectedLookIndex = 0
     @State private var isAnimationEnabled: Bool
-    @State private var isAutoBattleEnabled = true
 
     private let startDate = Date()
+    private let animationFrameInterval = 1.0 / 30.0
 
-    init(arena: ArenaConfiguration = try! ArenaConfiguration.load()) {
+    init(
+        progress: GameProgressStore,
+        arena: ArenaConfiguration = try! ArenaConfiguration.load(),
+        onExit: (() -> Void)? = nil
+    ) {
+        self.progress = progress
+        self.onExit = onExit
         self.arena = arena
         _scene = State(
             initialValue: SpriteAnimationScene.makeDefaultScene(arena: arena)
@@ -39,80 +42,75 @@ struct GameView: View {
             let groundHeight = viewSize.height * arena.floorHeightRatio
             let look = arena.looks[selectedLookIndex]
 
-            TimelineView(.animation) { timeline in
-                let time =
-                    isAnimationEnabled && look.isAnimated
-                    ? Float(timeline.date.timeIntervalSince(startDate))
-                    : 0
-
-                ZStack(alignment: .bottom) {
-                    Rectangle()
-                        .fill(
-                            ShaderLibrary.staticArenaBackground(
-                                .float2(
-                                    Float(viewSize.width),
-                                    Float(viewSize.height)
-                                ),
-                                .float(Float(look.glowIntensity)),
-                                .float(Float(look.accentColor.red)),
-                                .float(Float(look.accentColor.green)),
-                                .float(Float(look.accentColor.blue))
-                            )
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .fill(
+                        ShaderLibrary.staticArenaBackground(
+                            .float2(
+                                Float(viewSize.width),
+                                Float(viewSize.height)
+                            ),
+                            .float(Float(look.glowIntensity)),
+                            .float(Float(look.accentColor.red)),
+                            .float(Float(look.accentColor.green)),
+                            .float(Float(look.accentColor.blue))
                         )
-                        .ignoresSafeArea()
+                    )
+                    .ignoresSafeArea()
 
-                    Rectangle()
-                        .fill(
-                            ShaderLibrary.riverFloor(
-                                .float2(
-                                    Float(viewSize.width),
-                                    Float(groundHeight)
-                                ),
-                                .float(time),
-                                .float(Float(look.animationSpeed)),
-                                .float(Float(look.glowIntensity)),
-                                .float(Float(look.gridIntensity)),
-                                .float(Float(look.scanlineIntensity)),
-                                .float(Float(look.accentColor.red)),
-                                .float(Float(look.accentColor.green)),
-                                .float(Float(look.accentColor.blue))
-                            )
-                        )
-                        .frame(height: groundHeight)
-                    
-                  
+                groundLayer(
+                    look: look,
+                    viewSize: viewSize,
+                    groundHeight: groundHeight
+                )
 
-                    SpriteView(scene: scene, options: [.allowsTransparency])
-                    
-                    
-                    headerHUD
-                        .padding(.horizontal)
-                        .padding(.top, 54)
-                        .frame(
-                            maxWidth: .infinity,
-                            maxHeight: .infinity,
-                            alignment: .top
-                        )
-                    
-                    claimPanel
-                        .padding(.horizontal)
-                        .padding(.top, 200)
-                        .padding(.leading, 200)
-                        .frame(
-                            maxWidth: .infinity,
-                            maxHeight: .infinity,
-                            alignment: .top
-                        )
+                SpriteView(scene: scene, options: [.allowsTransparency])
 
-                }
-                .frame(width: viewSize.width, height: viewSize.height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                headerHUD
+                    .padding(.horizontal)
+                    .padding(.top, 54)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .top
+                    )
+
+                exitButton
+                    .padding(.leading, 14)
+                    .padding(.top, 48)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading
+                    )
+
+                claimPanel
+                    .padding(.horizontal)
+                    .padding(.top, 200)
+                    .padding(.leading, 200)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .top
+                    )
             }
+            .frame(width: viewSize.width, height: viewSize.height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(arena.looks[selectedLookIndex].backgroundColor.swiftUIColor)
         .ignoresSafeArea()
         .onTapGesture {
-            advanceStage()
+            attackStage()
+        }
+        .onAppear {
+            selectedLookIndex = lookIndex(for: progress.stage)
+            scene.updateUnlockedSpriteIndices(progress.unlockedSpriteIndices)
+        }
+        .onChange(of: progress.stage) { _, stage in
+            selectedLookIndex = lookIndex(for: stage)
+        }
+        .onChange(of: progress.unlockedSpriteIndices) { _, indices in
+            scene.updateUnlockedSpriteIndices(indices)
         }
         .task {
             await runAutoBattleLoop()
@@ -123,35 +121,20 @@ struct GameView: View {
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(1.4))
             
-            guard isAutoBattleEnabled else { continue }
+            guard progress.isAutoBattleEnabled else { continue }
             
             await MainActor.run {
-                advanceStage()
+                attackStage()
             }
         }
     }
 
-    private func advanceStage() {
-        let nextStage = stage + 1
-        stage = nextStage
-        selectedLookIndex = lookIndex(for: nextStage)
-        collectRewards(for: nextStage)
-        updateUnlockedSprites(for: nextStage)
-    }
-
-    private func collectRewards(for stage: Int) {
-        pendingCoins += 25 + stage * 3
-
-        if stage.isMultiple(of: 10) {
-            pendingCrystals += 1 + stage / 50
-        }
+    private func attackStage() {
+        progress.attackStage()
     }
     
     private func claimRewards() {
-        coins += pendingCoins
-        crystals += pendingCrystals
-        pendingCoins = 0
-        pendingCrystals = 0
+        progress.claimRewards()
     }
 
     private func lookIndex(for stage: Int) -> Int {
@@ -159,28 +142,112 @@ struct GameView: View {
         return (stage / 10) % arena.looks.count
     }
 
-    private func updateUnlockedSprites(for stage: Int) {
-        let nextUnlockedCount = 1 + stage / 10
-        unlockedSpriteCount = min(nextUnlockedCount, max(scene.availableSpriteCount, 1))
-        scene.updateUnlockedSpriteCount(unlockedSpriteCount)
+    @ViewBuilder
+    private func groundLayer(
+        look: ArenaLook,
+        viewSize: CGSize,
+        groundHeight: CGFloat
+    ) -> some View {
+        if let groundImageName = look.groundImageName {
+            Image(groundImageName)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFill()
+                .frame(width: viewSize.width, height: groundHeight)
+                .clipped()
+        } else {
+            TimelineView(.periodic(from: startDate, by: animationFrameInterval)) { timeline in
+                let time =
+                    isAnimationEnabled && look.isAnimated
+                    ? Float(timeline.date.timeIntervalSince(startDate))
+                    : 0
+
+                Rectangle()
+                    .fill(
+                        ShaderLibrary.riverFloor(
+                            .float2(
+                                Float(viewSize.width),
+                                Float(groundHeight)
+                            ),
+                            .float(time),
+                            .float(Float(look.animationSpeed)),
+                            .float(Float(look.glowIntensity)),
+                            .float(Float(look.gridIntensity)),
+                            .float(Float(look.scanlineIntensity)),
+                            .float(Float(look.accentColor.red)),
+                            .float(Float(look.accentColor.green)),
+                            .float(Float(look.accentColor.blue))
+                        )
+                    )
+                    .frame(height: groundHeight)
+            }
+        }
     }
 
     private var headerHUD: some View {
-        ZStack {
-            Text("Stage \(stage)")
-                .font(.system(size: 20, weight: .heavy))
-                .foregroundStyle(.white)
-                .padding(.horizontal)
-                .offset(y: 80)
+        VStack(spacing: 14) {
+            ZStack {
+                Text("Stage \(progress.stage)")
+                    .font(.system(size: 20, weight: .bold))
+                    .padding()
+                    .padding(.horizontal)
+                    .foregroundStyle(.white)
 
-            resourceLabel(image: "sprite_cookieman", value: unlockedSpriteCount)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                resourceLabel(image: "sprite_cookieman", value: progress.ownedSprites.count)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 8) {
-                resourceLabel(image: "icon_pixel_coin", value: coins)
-                resourceLabel(image: "icon_pixel_crystal", value: crystals)
+                HStack(spacing: 8) {
+                    resourceLabel(image: "icon_pixel_coin", value: progress.coins)
+                    resourceLabel(image: "icon_pixel_crystal", value: progress.crystals)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+
+            stageHealthBar
+                .padding(.horizontal, 52)
+        }
+    }
+
+    private var exitButton: some View {
+        Button {
+            onExit?()
+        } label: {
+            Image(systemName: "rectangle.portrait.and.arrow.right")
+                .font(.system(size: 17, weight: .heavy))
+                .foregroundStyle(.white)
+                .frame(width: 42, height: 42)
+                .background(.black.opacity(0.62))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var stageHealthBar: some View {
+        VStack(spacing: 5) {
+            GeometryReader { proxy in
+                let ratio = CGFloat(progress.stageHP) / CGFloat(max(progress.maxStageHP, 1))
+
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(.black.opacity(0.58))
+
+                    Rectangle()
+                        .fill(.red)
+                        .frame(width: proxy.size.width * min(max(ratio, 0), 1))
+                }
+            }
+            .frame(height: 14)
+            .overlay {
+                Rectangle()
+                    .stroke(.white.opacity(0.55), lineWidth: 1)
+            }
+
+            HStack {
+                Text("Raid HP")
+                Spacer()
+                Text("\(progress.stageHP)/\(progress.maxStageHP)")
+            }
+            .font(.system(size: 11, weight: .heavy))
+            .foregroundStyle(.white.opacity(0.82))
         }
     }
     
@@ -204,13 +271,13 @@ struct GameView: View {
                       box
                     )
             }
-            .disabled(pendingCoins == 0 && pendingCrystals == 0)
+            .disabled(progress.pendingCoins == 0 && progress.pendingCrystals == 0)
             .padding(.leading, 100)
 
             Button {
-                isAutoBattleEnabled.toggle()
+                progress.isAutoBattleEnabled.toggle()
             } label: {
-                Text(isAutoBattleEnabled ? "Auto Battle: ON" : "Auto Battle: OFF")
+                Text(progress.isAutoBattleEnabled ? "Auto Battle: ON" : "Auto Battle: OFF")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.leading, 100)
@@ -230,17 +297,13 @@ struct GameView: View {
                 .frame(width: 32, height: 32)
             
             Text("\(value)")
+                .font(.custom("Asteroid Blaster", size: 18))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
-        .font(.system(size: 18, weight: .heavy))
         .foregroundStyle(.white)
     }
 }
-
-
-
-typealias SpritesheetView = GameView
 
 extension SpriteAnimationScene {
     fileprivate static func makeDefaultScene(arena: ArenaConfiguration)
@@ -257,5 +320,5 @@ extension SpriteAnimationScene {
 }
 
 #Preview {
-    GameView()
+    GameView(progress: GameProgressStore())
 }

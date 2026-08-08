@@ -1,0 +1,46 @@
+{
+    "banners": [
+        {
+            "id": "moon_beast_starter",
+            "title": "Moon Beast Gate",
+            "bannerImageName": "moon_beast_logo",
+            "singleCost": 1,
+            "multiCost": 10,
+            "multiCount": 10,
+            "entries": [
+                {
+                    "id": "cookieman_front",
+                    "name": "Cookieman",
+                    "spriteIndex": 0,
+                    "imageName": "sprite_cookieman",
+                    "rarity": "common",
+                    "weight": 55
+                },
+                {
+                    "id": "klempi_front",
+                    "name": "Klempi",
+                    "spriteIndex": 1,
+                    "imageName": "sprite_klempi",
+                    "rarity": "rare",
+                    "weight": 30
+                },
+                {
+                    "id": "boss_front",
+                    "name": "Boss",
+                    "spriteIndex": 2,
+                    "imageName": "spriter_boss",
+                    "rarity": "epic",
+                    "weight": 12
+                },
+                {
+                    "id": "boss_elite",
+                    "name": "Elite Boss",
+                    "spriteIndex": 5,
+                    "imageName": "spriter_boss",
+                    "rarity": "legendary",
+                    "weight": 3
+                }
+            ]
+        }
+    ]
+}

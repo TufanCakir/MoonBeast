@@ -31,6 +31,7 @@ struct ArenaLook: Decodable {
     let name: String
     let backgroundColor: RGBColor
     let accentColor: RGBColor
+    let groundImageName: String?
     let animationSpeed: CGFloat
     let glowIntensity: CGFloat
     let gridIntensity: CGFloat

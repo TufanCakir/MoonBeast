@@ -28,6 +28,9 @@ final class SpriteSheetAnimation {
 
         node.texture = firstTexture
         node.removeAction(forKey: actionKey)
+
+        guard textures.count > 1 else { return }
+
         node.run(
             .repeatForever(
                 .animate(
@@ -39,6 +42,10 @@ final class SpriteSheetAnimation {
             ),
             withKey: actionKey
         )
+    }
+
+    func stop(on node: SKSpriteNode) {
+        node.removeAction(forKey: actionKey)
     }
 
     func size(fitting container: CGSize, scale: CGFloat = 0.7) -> CGSize {

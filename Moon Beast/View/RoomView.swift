@@ -12,3 +12,7 @@ struct RoomView: View {
         PlaceholderTabView(title: "Room", systemImage: "square.grid.2x2.fill")
     }
 }
+
+#Preview {
+    RoomView()
+}

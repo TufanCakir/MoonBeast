@@ -1,0 +1,32 @@
+{
+    "events": [
+        {
+            "id": "moon_raid",
+            "title": "Moon Raid",
+            "bannerImageName": "ground_colorfull",
+            "currencyName": "Moon Shards",
+            "currencyImageName": "icon_pixel_crystal",
+            "dailyLimit": 3,
+            "hp": 120,
+            "rewards": {
+                "eventCurrency": 25,
+                "coins": 150,
+                "crystals": 1
+            }
+        },
+        {
+            "id": "boss_hunt",
+            "title": "Boss Hunt",
+            "bannerImageName": "moon_beast_logo",
+            "currencyName": "Boss Tokens",
+            "currencyImageName": "icon_pixel_coin",
+            "dailyLimit": 2,
+            "hp": 260,
+            "rewards": {
+                "eventCurrency": 40,
+                "coins": 350,
+                "crystals": 2
+            }
+        }
+    ]
+}

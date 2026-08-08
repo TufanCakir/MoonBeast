@@ -8,32 +8,29 @@
 import SwiftUI
 
 enum AppTab: CaseIterable {
-    case battle
+    case home
     case sprites
     case summon
+    case shop
     case trade
-    case warehouse
-    case room
 
     var title: String {
         switch self {
-        case .battle: "Battle"
-        case .sprites: "Sprites"
+        case .home: "Home"
+        case .sprites: "Sprite"
         case .summon: "Summon"
+        case .shop: "Shop"
         case .trade: "Trade"
-        case .warehouse: "Bag"
-        case .room: "Room"
         }
     }
 
-    var systemImage: String {
+    var imageName: String {
         switch self {
-        case .battle: "flame.fill"
-        case .sprites: "person.3.fill"
-        case .summon: "sparkles"
-        case .trade: "arrow.left.arrow.right"
-        case .warehouse: "shippingbox.fill"
-        case .room: "square.grid.2x2.fill"
+        case .home: "icon_pixel_coin"
+        case .sprites: "sprite_cookieman"
+        case .summon: "icon_pixel_crystal"
+        case .shop: "icon_pixel_box"
+        case .trade: "icon_pixel_coin"
         }
     }
 }
@@ -48,36 +45,48 @@ struct Footer: View {
                     selectedTab = tab
                 } label: {
                     VStack(spacing: 4) {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 20, weight: .heavy))
+                        Image(tab.imageName)
+                            .resizable()
+                            .interpolation(.none)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(selectedTab == tab ? 1 : 0.62)
 
                         Text(tab.title)
                             .font(.system(size: 11, weight: .heavy))
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
+                            .shadow(color: .black.opacity(0.9), radius: 2, x: 0, y: 1)
                     }
-                    .foregroundStyle(selectedTab == tab ? .cyan : .white.opacity(0.72))
+                    .foregroundStyle(selectedTab == tab ? .yellow : .white.opacity(0.62))
                     .frame(maxWidth: .infinity)
-                    .frame(height: 58)
+                    .frame(height: 62)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 8)
-        .padding(.bottom, 22)
+        .padding(.horizontal, 12)
+        .padding(.top, 10)
+        .padding(.bottom, 24)
         .background(
             .black.opacity(0.72),
-            in: UnevenRoundedRectangle(
-                topLeadingRadius: 18,
-                topTrailingRadius: 18
-            )
+            in: Capsule()
         )
+        .padding(.horizontal, 18)
+        .padding(.bottom, 14)
         .overlay(alignment: .top) {
-            Rectangle()
-                .fill(.cyan.opacity(0.35))
-                .frame(height: 1)
+            Capsule()
+                .stroke(.cyan.opacity(0.5), lineWidth: 2)
+                .padding(.horizontal, 18)
+                .padding(.bottom, 14)
         }
+    }
+}
+
+#Preview {
+    ZStack(alignment: .bottom) {
+        AppBackground()
+        Footer(selectedTab: .constant(.home))
     }
 }

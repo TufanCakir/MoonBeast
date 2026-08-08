@@ -2,7 +2,7 @@
     "banner": {
         "id": "prestige_relics",
         "title": "Prestige Relics",
-        "bannerImageName": "icon_pixel_artefact",
+        "bannerImageName": "icon_pixel_relic",
         "singleCost": 5,
         "multiCost": 50,
         "multiCount": 100,

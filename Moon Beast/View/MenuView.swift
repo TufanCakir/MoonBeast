@@ -79,21 +79,14 @@ struct MenuView: View {
             }
             .padding(.horizontal, 50)
             .padding(.vertical, 50)
-            .background(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.01, green: 0.44, blue: 0.78).opacity(0.92),
-                        Color(red: 0.16, green: 0.22, blue: 0.24).opacity(0.86),
-                        Color(red: 0.39, green: 0.40, blue: 0.38).opacity(0.92)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 42)
-                    .stroke(.blue, lineWidth: 2)
+            .background {
+                Image("bg")
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFill()
             }
+
+          
             .clipShape(RoundedRectangle(cornerRadius: 42))
             .padding(.horizontal, 36)
         }
@@ -132,9 +125,10 @@ struct MenuView: View {
             }
             .overlay {
                 Capsule()
-                    .stroke(.yellow, lineWidth: 2)
+                    .stroke(.white, lineWidth: 2)
             }
             .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.9), radius: 1, x: 0, y: 2)
         }
         .buttonStyle(.plain)
     }

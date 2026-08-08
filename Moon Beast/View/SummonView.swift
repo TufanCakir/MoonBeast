@@ -21,7 +21,8 @@ struct SummonView: View {
     init(
         progress: GameProgressStore,
         configuration: SummonConfiguration = try! SummonConfiguration.load(),
-        artifactConfiguration: ArtifactConfiguration = try! ArtifactConfiguration.load()
+        artifactConfiguration: ArtifactConfiguration =
+            try! ArtifactConfiguration.load()
     ) {
         self.progress = progress
         self.configuration = configuration
@@ -36,7 +37,10 @@ struct SummonView: View {
                 GameHeader(progress: progress)
 
                 TabView(selection: $selectedPage) {
-                    ForEach(Array(configuration.banners.enumerated()), id: \.element.id) { index, banner in
+                    ForEach(
+                        Array(configuration.banners.enumerated()),
+                        id: \.element.id
+                    ) { index, banner in
                         unitBannerPage(banner)
                             .tag(index)
                     }
@@ -112,7 +116,12 @@ struct SummonView: View {
                     Image(systemName: "info.circle")
                         .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+                        .shadow(
+                            color: .black.opacity(0.9),
+                            radius: 3,
+                            x: 0,
+                            y: 2
+                        )
                 }
                 .buttonStyle(.plain)
             }
@@ -130,8 +139,18 @@ struct SummonView: View {
                 .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
 
             HStack(spacing: 10) {
-                summonButton(title: "Single", cost: singleCost, imageName: currencyImageName, action: singleAction)
-                summonButton(title: "Multi", cost: multiCost, imageName: currencyImageName, action: multiAction)
+                summonButton(
+                    title: "Single",
+                    cost: singleCost,
+                    imageName: currencyImageName,
+                    action: singleAction
+                )
+                summonButton(
+                    title: "Multi",
+                    cost: multiCost,
+                    imageName: currencyImageName,
+                    action: multiAction
+                )
             }
         }
         .padding()
@@ -179,7 +198,8 @@ struct SummonView: View {
                     resultRow(
                         imageName: result.entry.imageName,
                         name: result.entry.name,
-                        detail: result.isDuplicate ? "Duplicate  Star \(result.stars)" : "New  Star 1",
+                        detail: result.isDuplicate
+                            ? "Duplicate  Star \(result.stars)" : "New  Star 1",
                         rarity: result.entry.rarity
                     )
                 }
@@ -188,7 +208,8 @@ struct SummonView: View {
                     resultRow(
                         imageName: result.entry.imageName,
                         name: result.entry.name,
-                        detail: result.isDuplicate ? "Duplicate  Lv \(result.level)" : "New  Lv 1",
+                        detail: result.isDuplicate
+                            ? "Duplicate  Lv \(result.level)" : "New  Lv 1",
                         rarity: result.entry.rarity
                     )
                 }

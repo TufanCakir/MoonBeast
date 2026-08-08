@@ -9,7 +9,10 @@ import SwiftUI
 
 struct TradeView: View {
     var body: some View {
-        PlaceholderTabView(title: "Trade", systemImage: "arrow.left.arrow.right")
+        PlaceholderTabView(
+            title: "Trade",
+            systemImage: "arrow.left.arrow.right"
+        )
     }
 }
 

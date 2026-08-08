@@ -14,25 +14,22 @@ struct StartView: View {
         ZStack {
             AppBackground()
 
-            VStack(spacing: 36) {
+            VStack(spacing: 0) {
                 Image("moon_beast_logo")
                     .resizable()
                     .interpolation(.none)
                     .scaledToFit()
                     .frame(maxWidth: 300)
 
-                Button {
-                    hasStartedGame = true
-                } label: {
-                    Text("Start")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.black)
-                        .frame(width: 180, height: 56)
-                        .background(.cyan)
-                }
-                .buttonStyle(.plain)
+                Text("Tap to Start")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
             }
-            .padding(.horizontal, 32)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            hasStartedGame = true
         }
     }
 }
@@ -59,8 +56,4 @@ struct PlaceholderTabView: View {
 
 #Preview("Start") {
     StartView(hasStartedGame: .constant(false))
-}
-
-#Preview("Placeholder") {
-    PlaceholderTabView(title: "Preview", systemImage: "sparkles")
 }

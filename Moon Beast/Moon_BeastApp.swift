@@ -9,10 +9,6 @@ import SwiftUI
 
 @main
 struct Moon_BeastApp: App {
-    init() {
-        FontManager.registerBundledFonts()
-    }
-
     var body: some Scene {
         WindowGroup {
             RootView()

@@ -3,10 +3,10 @@
         {
             "id": "moon_beast_starter",
             "title": "Moon Beast Gate",
-            "bannerImageName": "moon_beast_logo",
-            "singleCost": 1,
-            "multiCost": 10,
-            "multiCount": 10,
+            "bannerImageName": "sprite_cookieman",
+            "singleCost": 5,
+            "multiCost": 50,
+            "multiCount": 100,
             "entries": [
                 {
                     "id": "cookieman_front",

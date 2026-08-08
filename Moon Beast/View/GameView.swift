@@ -1,6 +1,6 @@
 //
 //  GameView.swift
-//  Project Pixel
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 07.08.26.
 //
@@ -14,10 +14,11 @@ struct GameView: View {
     let onExit: (() -> Void)?
 
     private let arena: ArenaConfiguration
+    private let background: BackgroundConfiguration
     
     @State private var scene: SpriteAnimationScene
     @State private var selectedLookIndex = 0
-    @State private var isAnimationEnabled: Bool
+    @State private var isLayerAnimationEnabled = true
 
     private let startDate = Date()
     private let animationFrameInterval = 1.0 / 30.0
@@ -25,44 +26,35 @@ struct GameView: View {
     init(
         progress: GameProgressStore,
         arena: ArenaConfiguration = try! ArenaConfiguration.load(),
+        background: BackgroundConfiguration = try! BackgroundConfiguration.load(),
         onExit: (() -> Void)? = nil
     ) {
         self.progress = progress
         self.onExit = onExit
         self.arena = arena
+        self.background = background
         _scene = State(
             initialValue: SpriteAnimationScene.makeDefaultScene(arena: arena)
         )
-        _isAnimationEnabled = State(initialValue: arena.isAnimated)
     }
 
     var body: some View {
         GeometryReader { proxy in
             let viewSize = proxy.size
             let groundHeight = viewSize.height * arena.floorHeightRatio
-            let look = arena.looks[selectedLookIndex]
+            let backgroundLook = background.looks[backgroundLookIndex]
+            let groundLook = arena.looks[groundLookIndex]
 
             ZStack(alignment: .bottom) {
-                Rectangle()
-                    .fill(
-                        ShaderLibrary.staticArenaBackground(
-                            .float2(
-                                Float(viewSize.width),
-                                Float(viewSize.height)
-                            ),
-                            .float(Float(look.glowIntensity)),
-                            .float(Float(look.accentColor.red)),
-                            .float(Float(look.accentColor.green)),
-                            .float(Float(look.accentColor.blue))
-                        )
-                    )
-                    .ignoresSafeArea()
+                backgroundLayer(look: backgroundLook, viewSize: viewSize)
+                backgroundDarkeningLayer(look: backgroundLook)
 
                 groundLayer(
-                    look: look,
+                    look: groundLook,
                     viewSize: viewSize,
                     groundHeight: groundHeight
                 )
+                groundDarkeningLayer(look: groundLook, groundHeight: groundHeight)
 
                 SpriteView(scene: scene, options: [.allowsTransparency])
 
@@ -75,13 +67,22 @@ struct GameView: View {
                         alignment: .top
                     )
 
-                exitButton
-                    .padding(.leading, 14)
-                    .padding(.top, 48)
+                stageTitle
+                    .padding(.top, 150)
                     .frame(
                         maxWidth: .infinity,
                         maxHeight: .infinity,
-                        alignment: .topLeading
+                        alignment: .top
+                    )
+
+                exitButton
+                    .padding(.horizontal)
+                    .padding(.top, 110)
+                    .padding(.leading, 330)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .top
                     )
 
                 claimPanel
@@ -97,7 +98,7 @@ struct GameView: View {
             .frame(width: viewSize.width, height: viewSize.height)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(arena.looks[selectedLookIndex].backgroundColor.swiftUIColor)
+        .background(background.looks[backgroundLookIndex].backgroundColor.swiftUIColor)
         .ignoresSafeArea()
         .onTapGesture {
             attackStage()
@@ -138,8 +139,70 @@ struct GameView: View {
     }
 
     private func lookIndex(for stage: Int) -> Int {
+        let availableLookCount = min(background.looks.count, arena.looks.count)
+        guard availableLookCount > 0 else { return 0 }
+        return (stage / 10) % availableLookCount
+    }
+
+    private var backgroundLookIndex: Int {
+        guard !background.looks.isEmpty else { return 0 }
+        return min(selectedLookIndex, background.looks.count - 1)
+    }
+
+    private var groundLookIndex: Int {
         guard !arena.looks.isEmpty else { return 0 }
-        return (stage / 10) % arena.looks.count
+        return min(selectedLookIndex, arena.looks.count - 1)
+    }
+
+    @ViewBuilder
+    private func backgroundLayer(
+        look: GameBackgroundLook,
+        viewSize: CGSize
+    ) -> some View {
+        if let backgroundImageName = look.backgroundImageName {
+            Image(backgroundImageName)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFill()
+                .frame(width: viewSize.width, height: viewSize.height)
+                .clipped()
+                .ignoresSafeArea()
+        } else {
+            TimelineView(.periodic(from: startDate, by: animationFrameInterval)) { timeline in
+                let time =
+                    isLayerAnimationEnabled && look.isAnimated
+                    ? Float(timeline.date.timeIntervalSince(startDate))
+                        * Float(look.animationSpeed)
+                    : 0
+
+                Rectangle()
+                    .fill(
+                        ShaderLibrary.staticArenaBackground(
+                            .float2(
+                                Float(viewSize.width),
+                                Float(viewSize.height)
+                            ),
+                            .float(time),
+                            .float(Float(look.glowIntensity)),
+                            .float(Float(look.accentColor.red)),
+                            .float(Float(look.accentColor.green)),
+                            .float(Float(look.accentColor.blue))
+                        )
+                    )
+                    .ignoresSafeArea()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func backgroundDarkeningLayer(look: GameBackgroundLook) -> some View {
+        let opacity = min(max(look.backgroundDarkening, 0), 1)
+
+        if opacity > 0 {
+            Color.black
+                .opacity(opacity)
+                .ignoresSafeArea()
+        }
     }
 
     @ViewBuilder
@@ -158,7 +221,7 @@ struct GameView: View {
         } else {
             TimelineView(.periodic(from: startDate, by: animationFrameInterval)) { timeline in
                 let time =
-                    isAnimationEnabled && look.isAnimated
+                    isLayerAnimationEnabled && look.isAnimated
                     ? Float(timeline.date.timeIntervalSince(startDate))
                     : 0
 
@@ -184,28 +247,35 @@ struct GameView: View {
         }
     }
 
+    @ViewBuilder
+    private func groundDarkeningLayer(
+        look: ArenaLook,
+        groundHeight: CGFloat
+    ) -> some View {
+        let opacity = min(max(look.groundDarkening, 0), 1)
+
+        if opacity > 0 {
+            Rectangle()
+                .fill(.black.opacity(opacity))
+                .frame(height: groundHeight)
+        }
+    }
+
     private var headerHUD: some View {
-        VStack(spacing: 14) {
-            ZStack {
-                Text("Stage \(progress.stage)")
-                    .font(.system(size: 20, weight: .bold))
-                    .padding()
-                    .padding(.horizontal)
-                    .foregroundStyle(.white)
-
-                resourceLabel(image: "sprite_cookieman", value: progress.ownedSprites.count)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                HStack(spacing: 8) {
-                    resourceLabel(image: "icon_pixel_coin", value: progress.coins)
-                    resourceLabel(image: "icon_pixel_crystal", value: progress.crystals)
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
+        VStack(spacing: 20) {
+            GameHeader(progress: progress)
 
             stageHealthBar
-                .padding(.horizontal, 52)
+                .padding(.horizontal, 50)
+                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
         }
+    }
+
+    private var stageTitle: some View {
+        Text("Stage \(progress.stage)")
+            .font(.system(size: 30, weight: .bold))
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
     }
 
     private var exitButton: some View {
@@ -213,10 +283,9 @@ struct GameView: View {
             onExit?()
         } label: {
             Image(systemName: "rectangle.portrait.and.arrow.right")
-                .font(.system(size: 17, weight: .heavy))
+                .font(.system(size: 20, weight: .heavy))
                 .foregroundStyle(.white)
-                .frame(width: 42, height: 42)
-                .background(.black.opacity(0.62))
+                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
         }
         .buttonStyle(.plain)
     }
@@ -246,63 +315,85 @@ struct GameView: View {
                 Spacer()
                 Text("\(progress.stageHP)/\(progress.maxStageHP)")
             }
-            .font(.system(size: 11, weight: .heavy))
-            .foregroundStyle(.white.opacity(0.82))
+            .font(.system(size: 10, weight: .bold))
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
         }
     }
     
     private var box: some View {
-        Image("icon_pixel_box")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 100, height: 100)
-    }
-    
+            Image("icon_pixel_box")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+        }
+        
     private var claimPanel: some View {
         VStack(spacing: 30) {
+            if progress.hasPendingRewards {
+                HStack(spacing: 10) {
+                    AppResourceLabel(
+                        imageName: "icon_pixel_coin",
+                        value: progress.pendingCoins,
+                        prefix: "+",
+                        iconSize: 22,
+                        fontSize: 12
+                    )
+
+                    AppResourceLabel(
+                        imageName: "icon_pixel_crystal",
+                        value: progress.pendingCrystals,
+                        prefix: "+",
+                        iconSize: 22,
+                        fontSize: 12
+                    )
+                }
+            }
 
             Button {
                 claimRewards()
             } label: {
                 Text("Claim")
-                    .font(.system(size: 12, weight: .heavy))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
                     .background(
                       box
                     )
             }
-            .disabled(progress.pendingCoins == 0 && progress.pendingCrystals == 0)
+            .disabled(!progress.hasPendingRewards)
             .padding(.leading, 100)
 
             Button {
                 progress.isAutoBattleEnabled.toggle()
             } label: {
                 Text(progress.isAutoBattleEnabled ? "Auto Battle: ON" : "Auto Battle: OFF")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.leading, 100)
+            }
+
+            Button {
+                isLayerAnimationEnabled.toggle()
+            } label: {
+                Text(isLayerAnimationEnabled ? "Layer Animation: ON" : "Layer Animation: OFF")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(.leading, 100)
+            }
+
+            if progress.canPrestige {
+                Button {
+                    progress.prestige()
+                } label: {
+                    Text("Prestige +\(max(progress.stage / 10, 1)) Shards")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.yellow)
+                        .padding(.leading, 100)
+                }
             }
         }
     }
 
-    private func resourceLabel(
-        image: String,
-        value: Int
-    ) -> some View {
-        HStack(spacing: 10) {
-            Image(image)
-                .resizable()
-                .interpolation(.none)
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-            
-            Text("\(value)")
-                .font(.custom("Asteroid Blaster", size: 18))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        }
-        .foregroundStyle(.white)
-    }
 }
 
 extension SpriteAnimationScene {

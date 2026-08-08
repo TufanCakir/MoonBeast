@@ -1,6 +1,6 @@
 //
 //  SummonView.swift
-//  Project Pixel
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 07.08.26.
 //
@@ -11,208 +11,415 @@ struct SummonView: View {
     let progress: GameProgressStore
 
     private let configuration: SummonConfiguration
-    @State private var selectedBannerIndex = 0
+    private let artifactConfiguration: ArtifactConfiguration
+
+    @State private var selectedPage = 0
+    @State private var ratesOverlay: RatesOverlay?
+    @State private var pendingSummon: PendingSummon?
     @State private var message = ""
 
     init(
         progress: GameProgressStore,
-        configuration: SummonConfiguration = try! SummonConfiguration.load()
+        configuration: SummonConfiguration = try! SummonConfiguration.load(),
+        artifactConfiguration: ArtifactConfiguration = try! ArtifactConfiguration.load()
     ) {
         self.progress = progress
         self.configuration = configuration
+        self.artifactConfiguration = artifactConfiguration
     }
 
     var body: some View {
         ZStack {
             AppBackground()
 
-            if let banner = selectedBanner {
-                ScrollView {
-                    VStack(spacing: 18) {
-                        bannerHeader(banner)
-                        summonActions(banner)
-                        resultList
-                        rateList(banner)
+            VStack(spacing: 0) {
+                GameHeader(progress: progress)
+
+                TabView(selection: $selectedPage) {
+                    ForEach(Array(configuration.banners.enumerated()), id: \.element.id) { index, banner in
+                        unitBannerPage(banner)
+                            .tag(index)
                     }
-                    .padding(.horizontal, 18)
-                    .padding(.top, 64)
-                    .padding(.bottom, 110)
+
+                    artifactBannerPage(artifactConfiguration.banner)
+                        .tag(configuration.banners.count)
                 }
-            }
-        }
-    }
+                .tabViewStyle(.page(indexDisplayMode: .automatic))
 
-    private var selectedBanner: SummonBanner? {
-        guard configuration.banners.indices.contains(selectedBannerIndex) else {
-            return nil
-        }
-
-        return configuration.banners[selectedBannerIndex]
-    }
-
-    private func bannerHeader(_ banner: SummonBanner) -> some View {
-        VStack(spacing: 14) {
-            Image(banner.bannerImageName)
-                .resizable()
-                .interpolation(.none)
-                .scaledToFit()
-                .frame(maxWidth: 280)
-
-            HStack {
-                resourceLabel(image: "icon_pixel_crystal", value: progress.crystals)
-
-                Spacer()
-
-                Text("\(progress.ownedSprites.count) Units")
-                    .font(.system(size: 14, weight: .heavy))
-                    .foregroundStyle(.white.opacity(0.85))
+                resultList
+                    .frame(maxHeight: 190)
             }
 
-            Text(banner.title)
-                .font(.custom("Asteroid Blaster", size: 28))
-                .foregroundStyle(.white)
-        }
-    }
+            if let ratesOverlay {
+                ratesOverlayView(ratesOverlay)
+            }
 
-    private func summonActions(_ banner: SummonBanner) -> some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 12) {
-                summonButton(
-                    title: "Single",
-                    cost: banner.singleCost,
-                    isEnabled: progress.crystals >= banner.singleCost
-                ) {
-                    runSummon(progress.summonSingle(from: banner))
-                }
-
-                summonButton(
-                    title: "Multi",
-                    cost: banner.multiCost,
-                    isEnabled: progress.crystals >= banner.multiCost
-                ) {
-                    runSummon(progress.summonMulti(from: banner))
-                }
+            if let pendingSummon {
+                confirmOverlay(pendingSummon)
             }
 
             if !message.isEmpty {
-                Text(message)
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.82))
+                messageOverlay
             }
         }
+    }
+
+    private func unitBannerPage(_ banner: SummonBanner) -> some View {
+        bannerCard(
+            title: banner.title,
+            imageName: banner.bannerImageName,
+            currencyImageName: "icon_pixel_crystal",
+            currencyAmount: progress.crystals,
+            singleCost: banner.singleCost,
+            multiCost: banner.multiCost,
+            infoAction: { ratesOverlay = .units(banner) },
+            singleAction: { pendingSummon = .unitSingle(banner) },
+            multiAction: { pendingSummon = .unitMulti(banner) }
+        )
+    }
+
+    private func artifactBannerPage(_ banner: ArtifactBanner) -> some View {
+        bannerCard(
+            title: banner.title,
+            imageName: banner.bannerImageName,
+            currencyImageName: "icon_pixel_box",
+            currencyAmount: progress.artifactShards,
+            singleCost: banner.singleCost,
+            multiCost: banner.multiCost,
+            infoAction: { ratesOverlay = .artifacts(banner) },
+            singleAction: { pendingSummon = .artifactSingle(banner) },
+            multiAction: { pendingSummon = .artifactMulti(banner) }
+        )
+    }
+
+    private func bannerCard(
+        title: String,
+        imageName: String,
+        currencyImageName: String,
+        currencyAmount: Int,
+        singleCost: Int,
+        multiCost: Int,
+        infoAction: @escaping () -> Void,
+        singleAction: @escaping () -> Void,
+        multiAction: @escaping () -> Void
+    ) -> some View {
+        VStack(spacing: 50) {
+            HStack {
+
+                Spacer()
+
+                Button(action: infoAction) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Image(imageName)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(height: 118)
+                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+
+            Text(title)
+                .font(.system(size: 26, weight: .heavy))
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+
+            HStack(spacing: 10) {
+                summonButton(title: "Single", cost: singleCost, imageName: currencyImageName, action: singleAction)
+                summonButton(title: "Multi", cost: multiCost, imageName: currencyImageName, action: multiAction)
+            }
+        }
+        .padding()
     }
 
     private func summonButton(
         title: String,
         cost: Int,
-        isEnabled: Bool,
+        imageName: String,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Text(title)
-                    .font(.system(size: 15, weight: .heavy))
+                    .font(.system(size: 14, weight: .heavy))
 
-                Image("icon_pixel_crystal")
+                Image(imageName)
                     .resizable()
                     .interpolation(.none)
                     .scaledToFit()
-                    .frame(width: 18, height: 18)
+                    .frame(width: 16, height: 16)
 
                 Text("\(cost)")
-                    .font(.system(size: 14, weight: .heavy))
+                    .font(.system(size: 13, weight: .heavy))
             }
-            .foregroundStyle(.black)
+            .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .background(isEnabled ? .cyan : .gray)
+            .padding()
+            .background {
+                Image("icon_pixel_menü")
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFill()
+            }
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled)
     }
 
     private var resultList: some View {
-        VStack(spacing: 10) {
-            ForEach(progress.lastSummonResults) { result in
-                HStack(spacing: 12) {
-                    Image(result.entry.imageName)
-                        .resizable()
-                        .interpolation(.none)
-                        .scaledToFit()
-                        .frame(width: 44, height: 44)
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(result.entry.name)
-                            .font(.system(size: 15, weight: .heavy))
-
-                        Text(result.isDuplicate ? "Duplicate  Star \(result.stars)" : "New  Star 1")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
-
-                    Spacer()
-
-                    Text(result.entry.rarity.title)
-                        .font(.system(size: 12, weight: .heavy))
-                        .foregroundStyle(result.entry.rarity.color)
+        ScrollView {
+            VStack(spacing: 8) {
+                ForEach(progress.lastSummonResults) { result in
+                    resultRow(
+                        imageName: result.entry.imageName,
+                        name: result.entry.name,
+                        detail: result.isDuplicate ? "Duplicate  Star \(result.stars)" : "New  Star 1",
+                        rarity: result.entry.rarity
+                    )
                 }
-                .foregroundStyle(.white)
-                .padding(10)
-                .background(.white.opacity(0.08))
+
+                ForEach(progress.lastArtifactSummonResults) { result in
+                    resultRow(
+                        imageName: result.entry.imageName,
+                        name: result.entry.name,
+                        detail: result.isDuplicate ? "Duplicate  Lv \(result.level)" : "New  Lv 1",
+                        rarity: result.entry.rarity
+                    )
+                }
             }
         }
     }
 
-    private func rateList(_ banner: SummonBanner) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Rates")
-                .font(.system(size: 16, weight: .heavy))
-                .foregroundStyle(.white)
-
-            ForEach(banner.entries) { entry in
-                HStack(spacing: 10) {
-                    Image(entry.imageName)
-                        .resizable()
-                        .interpolation(.none)
-                        .scaledToFit()
-                        .frame(width: 28, height: 28)
-
-                    Text(entry.name)
-                        .font(.system(size: 13, weight: .bold))
-
-                    Spacer()
-
-                    Text(entry.rarity.title)
-                        .foregroundStyle(entry.rarity.color)
-
-                    Text("\(Int(entry.weight))%")
-                        .frame(width: 42, alignment: .trailing)
-                }
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(.white.opacity(0.85))
-            }
-        }
-        .padding(12)
-        .background(.white.opacity(0.06))
-    }
-
-    private func resourceLabel(image: String, value: Int) -> some View {
-        HStack(spacing: 8) {
-            Image(image)
+    private func resultRow(
+        imageName: String,
+        name: String,
+        detail: String,
+        rarity: SpriteRarity
+    ) -> some View {
+        HStack(spacing: 10) {
+            Image(imageName)
                 .resizable()
                 .interpolation(.none)
                 .scaledToFit()
-                .frame(width: 28, height: 28)
+                .frame(width: 38, height: 38)
 
-            Text("\(value)")
-                .font(.custom("Asteroid Blaster", size: 18))
-                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name)
+                    .font(.system(size: 14, weight: .heavy))
+
+                Text(detail)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.75))
+            }
+
+            Spacer()
+
+            Text(rarity.title)
+                .font(.system(size: 11, weight: .heavy))
+                .foregroundStyle(rarity.color)
+        }
+        .foregroundStyle(.white)
+        .padding(8)
+        .background(.black.opacity(0.24))
+    }
+
+    private func ratesOverlayView(_ overlay: RatesOverlay) -> some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+                .onTapGesture { ratesOverlay = nil }
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Rates")
+                        .font(.system(size: 22, weight: .heavy))
+
+                    Spacer()
+
+                    Button {
+                        ratesOverlay = nil
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .heavy))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                ForEach(overlay.rows) { row in
+                    HStack(spacing: 10) {
+                        Image(row.imageName)
+                            .resizable()
+                            .interpolation(.none)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+
+                        Text(row.name)
+                        Spacer()
+                        Text(row.rarity.title)
+                            .foregroundStyle(row.rarity.color)
+                        Text("\(Int(row.weight))%")
+                            .frame(width: 42, alignment: .trailing)
+                    }
+                    .font(.system(size: 13, weight: .bold))
+                }
+            }
+            .foregroundStyle(.white)
+            .padding(18)
+            .background(.black.opacity(0.82))
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .padding(.horizontal, 26)
         }
     }
 
-    private func runSummon(_ didSummon: Bool) {
-        message = didSummon ? "" : "Not enough crystals"
+    private func confirmOverlay(_ pending: PendingSummon) -> some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                Text("Summon?")
+                    .font(.system(size: 24, weight: .heavy))
+
+                AppResourceLabel(
+                    imageName: pending.currencyImageName,
+                    value: pending.cost,
+                    iconSize: 26,
+                    fontSize: 16
+                )
+
+                HStack(spacing: 12) {
+                    Button("Cancel") {
+                        pendingSummon = nil
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button("Confirm") {
+                        runSummon(pending)
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .foregroundStyle(.white)
+            .padding(22)
+            .background(.black.opacity(0.82))
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+        }
     }
+
+    private var messageOverlay: some View {
+        VStack {
+            Spacer()
+
+            Text(message)
+                .font(.system(size: 14, weight: .heavy))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background(.black.opacity(0.78))
+                .clipShape(Capsule())
+                .padding(.bottom, 132)
+        }
+    }
+
+    private func runSummon(_ pending: PendingSummon) {
+        let didSummon: Bool
+
+        switch pending {
+        case .unitSingle(let banner):
+            didSummon = progress.summonSingle(from: banner)
+        case .unitMulti(let banner):
+            didSummon = progress.summonMulti(from: banner)
+        case .artifactSingle(let banner):
+            didSummon = progress.summonArtifactSingle(from: banner)
+        case .artifactMulti(let banner):
+            didSummon = progress.summonArtifactMulti(from: banner)
+        }
+
+        pendingSummon = nil
+        message = didSummon ? "" : "Not enough \(pending.currencyName)"
+    }
+}
+
+private enum PendingSummon {
+    case unitSingle(SummonBanner)
+    case unitMulti(SummonBanner)
+    case artifactSingle(ArtifactBanner)
+    case artifactMulti(ArtifactBanner)
+
+    var cost: Int {
+        switch self {
+        case .unitSingle(let banner):
+            banner.singleCost
+        case .artifactSingle(let banner):
+            banner.singleCost
+        case .unitMulti(let banner):
+            banner.multiCost
+        case .artifactMulti(let banner):
+            banner.multiCost
+        }
+    }
+
+    var currencyImageName: String {
+        switch self {
+        case .unitSingle, .unitMulti:
+            "icon_pixel_crystal"
+        case .artifactSingle, .artifactMulti:
+            "icon_pixel_box"
+        }
+    }
+
+    var currencyName: String {
+        switch self {
+        case .unitSingle, .unitMulti:
+            "crystals"
+        case .artifactSingle, .artifactMulti:
+            "artifact shards"
+        }
+    }
+}
+
+private enum RatesOverlay {
+    case units(SummonBanner)
+    case artifacts(ArtifactBanner)
+
+    var rows: [RateRow] {
+        switch self {
+        case .units(let banner):
+            banner.entries.map {
+                RateRow(
+                    id: $0.id,
+                    name: $0.name,
+                    imageName: $0.imageName,
+                    rarity: $0.rarity,
+                    weight: $0.weight
+                )
+            }
+        case .artifacts(let banner):
+            banner.entries.map {
+                RateRow(
+                    id: $0.id,
+                    name: $0.name,
+                    imageName: $0.imageName,
+                    rarity: $0.rarity,
+                    weight: $0.weight
+                )
+            }
+        }
+    }
+}
+
+private struct RateRow: Identifiable {
+    let id: String
+    let name: String
+    let imageName: String
+    let rarity: SpriteRarity
+    let weight: Double
 }
 
 #Preview {

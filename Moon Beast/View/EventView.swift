@@ -116,9 +116,27 @@ struct EventView: View {
                     }
 
                     HStack(spacing: 12) {
-                        rewardLabel(image: event.currencyImageName, value: event.rewards.eventCurrency)
-                        rewardLabel(image: "icon_pixel_coin", value: event.rewards.coins)
-                        rewardLabel(image: "icon_pixel_crystal", value: event.rewards.crystals)
+                        AppResourceLabel(
+                            imageName: event.currencyImageName,
+                            value: event.rewards.eventCurrency,
+                            prefix: "+",
+                            iconSize: 20,
+                            fontSize: 12
+                        )
+                        AppResourceLabel(
+                            imageName: "icon_pixel_coin",
+                            value: event.rewards.coins,
+                            prefix: "+",
+                            iconSize: 20,
+                            fontSize: 12
+                        )
+                        AppResourceLabel(
+                            imageName: "icon_pixel_crystal",
+                            value: event.rewards.crystals,
+                            prefix: "+",
+                            iconSize: 20,
+                            fontSize: 12
+                        )
                     }
 
                     HStack {
@@ -140,19 +158,6 @@ struct EventView: View {
         }
         .buttonStyle(.plain)
         .disabled(remainingRuns == 0)
-    }
-
-    private func rewardLabel(image: String, value: Int) -> some View {
-        HStack(spacing: 5) {
-            Image(image)
-                .resizable()
-                .interpolation(.none)
-                .scaledToFit()
-                .frame(width: 20, height: 20)
-
-            Text("+\(value)")
-                .font(.system(size: 12, weight: .heavy))
-        }
     }
 }
 

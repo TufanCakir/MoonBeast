@@ -18,7 +18,10 @@ struct MenuView: View {
             AppBackground()
 
             VStack(spacing: 0) {
-                topBar
+                GameHeader(
+                    progress: progress
+                )
+                .padding(.top, 8)
 
                 Spacer()
 
@@ -26,27 +29,23 @@ struct MenuView: View {
                     isModePickerPresented = true
                 } label: {
                     Text("Menü")
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 50, weight: .bold))
                         .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.85), radius: 3, x: 0, y: 2)
+                        .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
                         .frame(maxWidth: .infinity)
                         .frame(height: 72)
                         .background {
-                            Image("ground_colorfull")
+                            Image("icon_pixel_menü")
                                 .resizable()
                                 .interpolation(.none)
                                 .scaledToFill()
-                                .opacity(0.72)
+                                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
                         }
-                        .overlay {
-                            Capsule()
-                                .stroke(.white, lineWidth: 2)
-                        }
-                        .clipShape(Capsule())
-                }
+                                   }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
-                
+                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+
                 Spacer()
             }
 
@@ -54,27 +53,6 @@ struct MenuView: View {
                 modePickerOverlay
             }
         }
-    }
-
-    private var topBar: some View {
-        HStack(alignment: .center, spacing: 18) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("LV \(progress.stage + 1)")
-                    .font(.system(size: 18, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
-
-                Capsule()
-                    .fill(.black.opacity(0.18))
-                    .frame(width: 150, height: 8)
-            }
-
-            Spacer()
-
-            resourceLabel(image: "icon_pixel_coin", value: progress.coins)
-            resourceLabel(image: "icon_pixel_crystal", value: progress.crystals)
-        }
-        .padding(.horizontal)
     }
 
     private var modePickerOverlay: some View {
@@ -140,7 +118,7 @@ struct MenuView: View {
 
                 Text(title)
                     .font(.system(size: 24, weight: .bold))
-                    .shadow(color: .black.opacity(0.85), radius: 3, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
@@ -159,20 +137,6 @@ struct MenuView: View {
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
-    }
-
-    private func resourceLabel(image: String, value: Int) -> some View {
-        HStack(spacing: 0) {
-            Image(image)
-                .resizable()
-                .interpolation(.none)
-                .scaledToFit()
-
-            Text("\(value)")
-                .font(.system(size: 20, weight: .heavy))
-                .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
-        }
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //  Footer.swift
-//  Project Pixel
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 07.08.26.
 //
@@ -26,11 +26,11 @@ enum AppTab: CaseIterable {
 
     var imageName: String {
         switch self {
-        case .home: "icon_pixel_coin"
+        case .home: "icon_pixel_house"
         case .sprites: "sprite_cookieman"
         case .summon: "icon_pixel_crystal"
         case .shop: "icon_pixel_box"
-        case .trade: "icon_pixel_coin"
+        case .trade: "icon_pixel_trade"
         }
     }
 }
@@ -39,7 +39,7 @@ struct Footer: View {
     @Binding var selectedTab: AppTab
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 20) {
             ForEach(AppTab.allCases, id: \.self) { tab in
                 Button {
                     selectedTab = tab
@@ -49,38 +49,21 @@ struct Footer: View {
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
-                            .frame(width: 28, height: 28)
-                            .opacity(selectedTab == tab ? 1 : 0.62)
 
                         Text(tab.title)
-                            .font(.system(size: 11, weight: .heavy))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                            .shadow(color: .black.opacity(0.9), radius: 2, x: 0, y: 1)
+                            .font(.system(size: 13, weight: .bold))
+                            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+                            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+
+
                     }
-                    .foregroundStyle(selectedTab == tab ? .yellow : .white.opacity(0.62))
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 62)
-                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 10)
-        .padding(.bottom, 24)
-        .background(
-            .black.opacity(0.72),
-            in: Capsule()
-        )
-        .padding(.horizontal, 18)
-        .padding(.bottom, 14)
-        .overlay(alignment: .top) {
-            Capsule()
-                .stroke(.cyan.opacity(0.5), lineWidth: 2)
-                .padding(.horizontal, 18)
-                .padding(.bottom, 14)
-        }
+        .padding()
     }
 }
 

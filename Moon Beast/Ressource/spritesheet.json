@@ -24,7 +24,7 @@
         "scale": 0.17
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -60,7 +60,7 @@
         "scale": 0.13
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -96,7 +96,7 @@
         "scale": 0.15
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -132,7 +132,7 @@
         "scale": 0.11
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -168,7 +168,7 @@
         "scale": 0.13
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -204,7 +204,7 @@
         "scale": 0.1
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,
@@ -240,7 +240,7 @@
         "scale": 0.12
     },
     {
-        "imageName": "spriter_boss",
+        "imageName": "sprite_dompi",
         "columns": 2,
         "rows": 1,
         "spacing": 0,

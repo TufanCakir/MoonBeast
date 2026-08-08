@@ -1,6 +1,6 @@
 //
 //  Shader.metal
-//  Project Pixel
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 07.08.26.
 //
@@ -11,12 +11,14 @@ using namespace metal;
 [[ stitchable ]] half4 staticArenaBackground(
     float2 position,
     float2 size,
+    float time,
     float glowIntensity,
     float accentRed,
     float accentGreen,
     float accentBlue
 ) {
     float2 uv = position / max(size, float2(1.0));
+    float pulse = 0.92 + 0.08 * sin(time * 0.55);
     float3 accent = float3(accentRed, accentGreen, accentBlue);
     float3 secondaryAccent = mix(accent, float3(0.02, 0.72, 1.0), 0.35);
 
@@ -25,8 +27,8 @@ using namespace metal;
     float sideGlow = 1.0 - smoothstep(0.0, 0.72, distance(uv, float2(0.5, 0.18)));
 
     float3 color = mix(float3(0.002, 0.006, 0.018), accent * 0.08, topFade);
-    color += accent * centerGlow * 0.14 * glowIntensity;
-    color += secondaryAccent * sideGlow * 0.08 * glowIntensity;
+    color += accent * centerGlow * 0.14 * glowIntensity * pulse;
+    color += secondaryAccent * sideGlow * 0.08 * glowIntensity * pulse;
     color = mix(color, float3(0.001, 0.003, 0.010), smoothstep(0.72, 1.0, uv.y) * 0.55);
 
     return half4(half3(color), 1.0);

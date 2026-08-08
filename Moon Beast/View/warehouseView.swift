@@ -1,6 +1,8 @@
 //
 //  warehouseView.swift
-//  Project Pixel
+//  Moon Beast
+//
+//  Created by Tufan Cakir on 07.08.26.
 //
 
 import SwiftUI
@@ -14,5 +16,3 @@ struct warehouseView: View {
 #Preview {
     warehouseView()
 }
-//  Created by Tufan Cakir on 07.08.26.
-//

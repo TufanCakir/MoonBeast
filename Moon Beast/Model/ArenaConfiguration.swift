@@ -1,6 +1,6 @@
 //
 //  ArenaConfiguration.swift
-//  SpriteSheet
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 29.07.26.
 //
@@ -8,16 +8,10 @@
 import SwiftUI
 
 struct ArenaConfiguration: Decodable {
-    let backgroundColor: RGBColor
     let floorHeightRatio: CGFloat
     let characterDepth: CGFloat
     let characterScale: CGFloat
     let characterXPosition: CGFloat
-    let animationSpeed: CGFloat
-    let glowIntensity: CGFloat
-    let gridIntensity: CGFloat
-    let scanlineIntensity: CGFloat
-    let isAnimated: Bool
     let looks: [ArenaLook]
 
     static func load(named resourceName: String = "arena") throws
@@ -29,9 +23,9 @@ struct ArenaConfiguration: Decodable {
 
 struct ArenaLook: Decodable {
     let name: String
-    let backgroundColor: RGBColor
-    let accentColor: RGBColor
     let groundImageName: String?
+    let groundDarkening: Double
+    let accentColor: RGBColor
     let animationSpeed: CGFloat
     let glowIntensity: CGFloat
     let gridIntensity: CGFloat

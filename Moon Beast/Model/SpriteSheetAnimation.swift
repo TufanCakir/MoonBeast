@@ -1,6 +1,6 @@
 //
 //  SpriteSheetAnimation.swift
-//  SpriteSheet
+//  Moon Beast
 //
 //  Created by Tufan Cakir on 29.07.26.
 //

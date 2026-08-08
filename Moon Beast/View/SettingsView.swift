@@ -1,0 +1,14 @@
+//
+//  SettingsView.swift
+//  Project Pixel
+//
+//  Created by Tufan Cakir on 07.08.26.
+//
+
+import SwiftUI
+
+struct SettingsView: View {
+    var body: some View {
+        Text("Settings")
+    }
+}

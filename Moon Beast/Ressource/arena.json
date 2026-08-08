@@ -1,0 +1,306 @@
+{
+    "backgroundColor": {
+        "red": 0.005,
+        "green": 0.015,
+        "blue": 0.04
+    },
+    "floorHeightRatio": 0.5,
+    "characterDepth": 0.82,
+    "characterScale": 0.16,
+    "characterXPosition": 0.1,
+    "animationSpeed": 2.0,
+    "glowIntensity": 1.0,
+    "gridIntensity": 1.0,
+    "scanlineIntensity": 1.0,
+    "isAnimated": true,
+    "looks": [
+        {
+            "name": "Tech Blue",
+            "backgroundColor": {
+                "red": 0.005,
+                "green": 0.015,
+                "blue": 0.04
+            },
+            "accentColor": {
+                "red": 0.0,
+                "green": 0.95,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Aqua",
+            "backgroundColor": {
+                "red": 0.0,
+                "green": 0.035,
+                "blue": 0.065
+            },
+            "accentColor": {
+                "red": 0.25,
+                "green": 1.0,
+                "blue": 0.78
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Void",
+            "backgroundColor": {
+                "red": 0.025,
+                "green": 0.012,
+                "blue": 0.06
+            },
+            "accentColor": {
+                "red": 0.75,
+                "green": 0.2,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Lava",
+            "backgroundColor": {
+                "red": 0.08,
+                "green": 0.012,
+                "blue": 0.004
+            },
+            "accentColor": {
+                "red": 1.0,
+                "green": 0.26,
+                "blue": 0.02
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Ice",
+            "backgroundColor": {
+                "red": 0.012,
+                "green": 0.035,
+                "blue": 0.075
+            },
+            "accentColor": {
+                "red": 0.58,
+                "green": 0.92,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Nature",
+            "backgroundColor": {
+                "red": 0.012,
+                "green": 0.045,
+                "blue": 0.018
+            },
+            "accentColor": {
+                "red": 0.36,
+                "green": 0.92,
+                "blue": 0.28
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Forest",
+            "backgroundColor": {
+                "red": 0.006,
+                "green": 0.026,
+                "blue": 0.014
+            },
+            "accentColor": {
+                "red": 0.12,
+                "green": 0.66,
+                "blue": 0.24
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Snow",
+            "backgroundColor": {
+                "red": 0.03,
+                "green": 0.045,
+                "blue": 0.06
+            },
+            "accentColor": {
+                "red": 0.86,
+                "green": 0.96,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Wind",
+            "backgroundColor": {
+                "red": 0.012,
+                "green": 0.045,
+                "blue": 0.052
+            },
+            "accentColor": {
+                "red": 0.55,
+                "green": 1.0,
+                "blue": 0.82
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Stone",
+            "backgroundColor": {
+                "red": 0.028,
+                "green": 0.03,
+                "blue": 0.034
+            },
+            "accentColor": {
+                "red": 0.58,
+                "green": 0.62,
+                "blue": 0.66
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Grass",
+            "backgroundColor": {
+                "red": 0.018,
+                "green": 0.058,
+                "blue": 0.016
+            },
+            "accentColor": {
+                "red": 0.55,
+                "green": 1.0,
+                "blue": 0.18
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "RPG Gold",
+            "backgroundColor": {
+                "red": 0.055,
+                "green": 0.038,
+                "blue": 0.012
+            },
+            "accentColor": {
+                "red": 1.0,
+                "green": 0.74,
+                "blue": 0.18
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Lightning",
+            "backgroundColor": {
+                "red": 0.03,
+                "green": 0.028,
+                "blue": 0.075
+            },
+            "accentColor": {
+                "red": 0.95,
+                "green": 1.0,
+                "blue": 0.16
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Electric",
+            "backgroundColor": {
+                "red": 0.004,
+                "green": 0.018,
+                "blue": 0.075
+            },
+            "accentColor": {
+                "red": 0.0,
+                "green": 0.55,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Shock",
+            "backgroundColor": {
+                "red": 0.035,
+                "green": 0.01,
+                "blue": 0.065
+            },
+            "accentColor": {
+                "red": 0.9,
+                "green": 0.18,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": true
+        },
+        {
+            "name": "Static",
+            "backgroundColor": {
+                "red": 0.004,
+                "green": 0.01,
+                "blue": 0.026
+            },
+            "accentColor": {
+                "red": 0.1,
+                "green": 0.45,
+                "blue": 1.0
+            },
+            "animationSpeed": 2.0,
+            "glowIntensity": 2.0,
+            "gridIntensity": 2.0,
+            "scanlineIntensity": 2.0,
+            "isAnimated": false
+        },
+    ]
+}

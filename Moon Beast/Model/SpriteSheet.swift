@@ -5,8 +5,8 @@
 //  Created by Tufan Cakir on 29.07.26.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 struct SpriteSheet: Codable {
     let imageName: String
@@ -26,8 +26,9 @@ struct SpriteSheet: Codable {
         named resourceName: String = "spritesheet",
         bundle: Bundle = .main
     ) throws -> SpriteSheet {
-        guard let firstSheet = try loadAll(named: resourceName, bundle: bundle)
-            .first
+        guard
+            let firstSheet = try loadAll(named: resourceName, bundle: bundle)
+                .first
         else {
             throw Error.emptySpriteSheetList
         }

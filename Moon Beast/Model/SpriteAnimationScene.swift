@@ -63,7 +63,9 @@ final class SpriteAnimationScene: SKScene {
     private func setupCharactersIfNeeded() {
         guard characters.isEmpty else { return }
 
-        let sheets = spriteSheets.isEmpty ? [try? SpriteSheet.load()].compactMap { $0 } : spriteSheets
+        let sheets =
+            spriteSheets.isEmpty
+            ? [try? SpriteSheet.load()].compactMap { $0 } : spriteSheets
 
         characters = sheets.enumerated().map { index, sheet in
             let animation = SpriteSheetAnimation(config: sheet)
@@ -97,8 +99,12 @@ final class SpriteAnimationScene: SKScene {
         for index in characters.indices {
             let character = characters[index]
             let scale = character.config.scale ?? arena.characterScale
-            let xPosition = character.config.xPosition
-                ?? defaultXPosition(for: character.index, count: characters.count)
+            let xPosition =
+                character.config.xPosition
+                ?? defaultXPosition(
+                    for: character.index,
+                    count: characters.count
+                )
             let yOffset = character.config.yOffset ?? 0
 
             character.node.size = character.animation.size(
@@ -141,12 +147,16 @@ final class SpriteAnimationScene: SKScene {
 
         let spacing: CGFloat = 0.18
         let centerOffset = CGFloat(index) - CGFloat(count - 1) * 0.5
-        return min(max(arena.characterXPosition + centerOffset * spacing, 0.12), 0.88)
+        return min(
+            max(arena.characterXPosition + centerOffset * spacing, 0.12),
+            0.88
+        )
     }
 
     private func updateShadowPositions() {
         for character in characters {
-            let xPosition = character.config.xPosition
+            let xPosition =
+                character.config.xPosition
                 ?? defaultXPosition(
                     for: character.index,
                     count: characters.count
@@ -173,7 +183,9 @@ final class SpriteAnimationScene: SKScene {
         fallbackXPosition: CGFloat,
         fallbackYOffset: CGFloat
     ) -> CGPoint {
-        guard let gridColumn = config.gridColumn ?? automaticGridColumn(for: index),
+        guard
+            let gridColumn = config.gridColumn
+                ?? automaticGridColumn(for: index),
             let gridRow = config.gridRow ?? automaticGridRow(for: index)
         else {
             return CGPoint(
@@ -187,7 +199,8 @@ final class SpriteAnimationScene: SKScene {
         let centerColumn = CGFloat(gridColumns - 1) * 0.5
         let columnOffset = CGFloat(clampedColumn) - centerColumn
         let rowOffset = CGFloat(clampedRow)
-        let x = size.width * gridCenterXRatio
+        let x =
+            size.width * gridCenterXRatio
             + columnOffset * size.width * gridCellWidthRatio
             + alternatingRowOffset(for: clampedRow)
         let y = gridBaseY + rowOffset * floorHeight * gridCellHeightRatio

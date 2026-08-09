@@ -5,8 +5,8 @@
 //  Created by Tufan Cakir on 07.08.26.
 //
 
-import SwiftUI
 import SpriteKit
+import SwiftUI
 
 struct GameView: View {
 
@@ -15,7 +15,7 @@ struct GameView: View {
 
     private let arena: ArenaConfiguration
     private let background: BackgroundConfiguration
-    
+
     @State private var scene: SpriteAnimationScene
     @State private var selectedLookIndex = 0
     @State private var isLayerAnimationEnabled = true
@@ -26,7 +26,8 @@ struct GameView: View {
     init(
         progress: GameProgressStore,
         arena: ArenaConfiguration = try! ArenaConfiguration.load(),
-        background: BackgroundConfiguration = try! BackgroundConfiguration.load(),
+        background: BackgroundConfiguration =
+            try! BackgroundConfiguration.load(),
         onExit: (() -> Void)? = nil
     ) {
         self.progress = progress
@@ -54,7 +55,10 @@ struct GameView: View {
                     viewSize: viewSize,
                     groundHeight: groundHeight
                 )
-                groundDarkeningLayer(look: groundLook, groundHeight: groundHeight)
+                groundDarkeningLayer(
+                    look: groundLook,
+                    groundHeight: groundHeight
+                )
 
                 SpriteView(scene: scene, options: [.allowsTransparency])
 
@@ -98,7 +102,9 @@ struct GameView: View {
             .frame(width: viewSize.width, height: viewSize.height)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(background.looks[backgroundLookIndex].backgroundColor.swiftUIColor)
+        .background(
+            background.looks[backgroundLookIndex].backgroundColor.swiftUIColor
+        )
         .ignoresSafeArea()
         .onTapGesture {
             attackStage()
@@ -117,13 +123,13 @@ struct GameView: View {
             await runAutoBattleLoop()
         }
     }
-    
+
     private func runAutoBattleLoop() async {
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(1.4))
-            
+
             guard progress.isAutoBattleEnabled else { continue }
-            
+
             await MainActor.run {
                 attackStage()
             }
@@ -133,7 +139,7 @@ struct GameView: View {
     private func attackStage() {
         progress.attackStage()
     }
-    
+
     private func claimRewards() {
         progress.claimRewards()
     }
@@ -168,7 +174,8 @@ struct GameView: View {
                 .clipped()
                 .ignoresSafeArea()
         } else {
-            TimelineView(.periodic(from: startDate, by: animationFrameInterval)) { timeline in
+            TimelineView(.periodic(from: startDate, by: animationFrameInterval))
+            { timeline in
                 let time =
                     isLayerAnimationEnabled && look.isAnimated
                     ? Float(timeline.date.timeIntervalSince(startDate))
@@ -195,7 +202,8 @@ struct GameView: View {
     }
 
     @ViewBuilder
-    private func backgroundDarkeningLayer(look: GameBackgroundLook) -> some View {
+    private func backgroundDarkeningLayer(look: GameBackgroundLook) -> some View
+    {
         let opacity = min(max(look.backgroundDarkening, 0), 1)
 
         if opacity > 0 {
@@ -219,7 +227,8 @@ struct GameView: View {
                 .frame(width: viewSize.width, height: groundHeight)
                 .clipped()
         } else {
-            TimelineView(.periodic(from: startDate, by: animationFrameInterval)) { timeline in
+            TimelineView(.periodic(from: startDate, by: animationFrameInterval))
+            { timeline in
                 let time =
                     isLayerAnimationEnabled && look.isAnimated
                     ? Float(timeline.date.timeIntervalSince(startDate))
@@ -293,7 +302,9 @@ struct GameView: View {
     private var stageHealthBar: some View {
         VStack(spacing: 5) {
             GeometryReader { proxy in
-                let ratio = CGFloat(progress.stageHP) / CGFloat(max(progress.maxStageHP, 1))
+                let ratio =
+                    CGFloat(progress.stageHP)
+                    / CGFloat(max(progress.maxStageHP, 1))
 
                 ZStack(alignment: .leading) {
                     Rectangle()
@@ -320,14 +331,14 @@ struct GameView: View {
             .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
         }
     }
-    
+
     private var box: some View {
-            Image("icon_pixel_box")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 100, height: 100)
-        }
-        
+        Image("icon_pixel_box")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 100, height: 100)
+    }
+
     private var claimPanel: some View {
         VStack(spacing: 30) {
             if progress.hasPendingRewards {
@@ -357,7 +368,7 @@ struct GameView: View {
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
                     .background(
-                      box
+                        box
                     )
             }
             .disabled(!progress.hasPendingRewards)
@@ -366,19 +377,25 @@ struct GameView: View {
             Button {
                 progress.isAutoBattleEnabled.toggle()
             } label: {
-                Text(progress.isAutoBattleEnabled ? "Auto Battle: ON" : "Auto Battle: OFF")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(.leading, 100)
+                Text(
+                    progress.isAutoBattleEnabled
+                        ? "Auto Battle: ON" : "Auto Battle: OFF"
+                )
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.leading, 100)
             }
 
             Button {
                 isLayerAnimationEnabled.toggle()
             } label: {
-                Text(isLayerAnimationEnabled ? "Layer Animation: ON" : "Layer Animation: OFF")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(.leading, 100)
+                Text(
+                    isLayerAnimationEnabled
+                        ? "Layer Animation: ON" : "Layer Animation: OFF"
+                )
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.leading, 100)
             }
 
             if progress.canPrestige {

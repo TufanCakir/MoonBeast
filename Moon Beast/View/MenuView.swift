@@ -15,13 +15,11 @@ struct MenuView: View {
 
     var body: some View {
         ZStack {
-            AppBackground()
-
             VStack(spacing: 0) {
                 GameHeader(
                     progress: progress
                 )
-                .padding(.top, 8)
+                .padding(.top, 18)
 
                 Spacer()
 
@@ -31,7 +29,12 @@ struct MenuView: View {
                     Text("Menü")
                         .font(.system(size: 50, weight: .bold))
                         .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+                        .shadow(
+                            color: .black.opacity(0.9),
+                            radius: 3,
+                            x: 0,
+                            y: 2
+                        )
                         .frame(maxWidth: .infinity)
                         .frame(height: 72)
                         .background {
@@ -39,9 +42,14 @@ struct MenuView: View {
                                 .resizable()
                                 .interpolation(.none)
                                 .scaledToFill()
-                                .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
+                                .shadow(
+                                    color: .black.opacity(0.9),
+                                    radius: 3,
+                                    x: 0,
+                                    y: 2
+                                )
                         }
-                                   }
+                }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
                 .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
@@ -53,6 +61,9 @@ struct MenuView: View {
                 modePickerOverlay
             }
         }
+        .background {
+            AppBackground()
+        }
     }
 
     private var modePickerOverlay: some View {
@@ -61,32 +72,28 @@ struct MenuView: View {
                 .ignoresSafeArea()
                 .onTapGesture {
                     isModePickerPresented = false
-            }
+                }
 
             VStack(spacing: 50) {
                 popupButton(
                     title: "Battle",
                     iconImage: "sprite_cookieman",
-                    backgroundImage: "ground_colorfull",
+                    backgroundImage: "bg",
                     mode: .battle
                 )
                 popupButton(
                     title: "Events",
                     iconImage: "sprite_cookieman",
-                    backgroundImage: "ground_colorfull",
+                    backgroundImage: "bg",
                     mode: .event
                 )
             }
             .padding(.horizontal, 50)
             .padding(.vertical, 50)
             .background {
-                Image("bg")
-                    .resizable()
-                    .interpolation(.none)
-                    .scaledToFill()
+                AppBackground()
             }
 
-          
             .clipShape(RoundedRectangle(cornerRadius: 42))
             .padding(.horizontal, 36)
         }

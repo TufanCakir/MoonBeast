@@ -5,8 +5,8 @@
 //  Created by Tufan Cakir on 08.08.26.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 import Observation
 
 @Observable
@@ -45,7 +45,9 @@ final class GameProgressStore {
     }
 
     var battlePower: Int {
-        let spritePower = ownedSprites.values.reduce(0) { $0 + max($1.stars, 1) }
+        let spritePower = ownedSprites.values.reduce(0) {
+            $0 + max($1.stars, 1)
+        }
         let artifactPower = ownedArtifacts.values.reduce(0) {
             $0 + $1.damageBonus * max($1.level, 1)
         }
@@ -118,11 +120,13 @@ final class GameProgressStore {
 
         guard remainingRuns(for: event) > 0 else { return false }
 
-        let currentRun = eventRunsByID[event.id] ?? EventRunProgress(
-            eventID: event.id,
-            usedRuns: 0,
-            resetDay: Self.todayKey()
-        )
+        let currentRun =
+            eventRunsByID[event.id]
+            ?? EventRunProgress(
+                eventID: event.id,
+                usedRuns: 0,
+                resetDay: Self.todayKey()
+            )
 
         eventRunsByID[event.id] = EventRunProgress(
             eventID: event.id,
@@ -175,10 +179,16 @@ final class GameProgressStore {
 
     @discardableResult
     func summonArtifactMulti(from banner: ArtifactBanner) -> Bool {
-        summonArtifact(count: banner.multiCount, cost: banner.multiCost, from: banner)
+        summonArtifact(
+            count: banner.multiCount,
+            cost: banner.multiCost,
+            from: banner
+        )
     }
 
-    private func summon(count: Int, cost: Int, from banner: SummonBanner) -> Bool {
+    private func summon(count: Int, cost: Int, from banner: SummonBanner)
+        -> Bool
+    {
         guard crystals >= cost, count > 0 else { return false }
 
         crystals -= cost
@@ -290,7 +300,10 @@ final class GameProgressStore {
     private func loadProgress() {
         guard
             let data = UserDefaults.standard.data(forKey: Self.saveKey),
-            let snapshot = try? JSONDecoder().decode(ProgressSnapshot.self, from: data)
+            let snapshot = try? JSONDecoder().decode(
+                ProgressSnapshot.self,
+                from: data
+            )
         else {
             return
         }
@@ -310,10 +323,14 @@ final class GameProgressStore {
         eventCurrencies = snapshot.eventCurrencies
         eventRunsByID = snapshot.eventRunsByID
         ownedSprites = Dictionary(
-            uniqueKeysWithValues: snapshot.ownedSprites.map { ($0.spriteIndex, $0) }
+            uniqueKeysWithValues: snapshot.ownedSprites.map {
+                ($0.spriteIndex, $0)
+            }
         )
         ownedArtifacts = Dictionary(
-            uniqueKeysWithValues: snapshot.ownedArtifacts.map { ($0.artifactID, $0) }
+            uniqueKeysWithValues: snapshot.ownedArtifacts.map {
+                ($0.artifactID, $0)
+            }
         )
     }
 
@@ -389,7 +406,8 @@ final class GameProgressStore {
             [.year, .month, .day],
             from: Date()
         )
-        return "\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+        return
+            "\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
     }
 
     private struct ProgressSnapshot: Codable {
@@ -446,25 +464,54 @@ final class GameProgressStore {
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             stage = try container.decodeIfPresent(Int.self, forKey: .stage) ?? 0
-            maxStageHP = try container.decodeIfPresent(Int.self, forKey: .maxStageHP)
+            maxStageHP =
+                try container.decodeIfPresent(Int.self, forKey: .maxStageHP)
                 ?? GameProgressStore.maxHP(for: stage)
-            stageHP = try container.decodeIfPresent(Int.self, forKey: .stageHP)
+            stageHP =
+                try container.decodeIfPresent(Int.self, forKey: .stageHP)
                 ?? maxStageHP
-            accountLevel = try container.decodeIfPresent(Int.self, forKey: .accountLevel) ?? 1
-            accountXP = try container.decodeIfPresent(Int.self, forKey: .accountXP) ?? 0
-            prestigeCount = try container.decodeIfPresent(Int.self, forKey: .prestigeCount) ?? 0
-            artifactShards = try container.decodeIfPresent(Int.self, forKey: .artifactShards) ?? 0
+            accountLevel =
+                try container.decodeIfPresent(Int.self, forKey: .accountLevel)
+                ?? 1
+            accountXP =
+                try container.decodeIfPresent(Int.self, forKey: .accountXP) ?? 0
+            prestigeCount =
+                try container.decodeIfPresent(Int.self, forKey: .prestigeCount)
+                ?? 0
+            artifactShards =
+                try container.decodeIfPresent(Int.self, forKey: .artifactShards)
+                ?? 0
             coins = try container.decodeIfPresent(Int.self, forKey: .coins) ?? 0
-            crystals = try container.decodeIfPresent(Int.self, forKey: .crystals) ?? 0
-            pendingCoins = try container.decodeIfPresent(Int.self, forKey: .pendingCoins) ?? 0
-            pendingCrystals = try container.decodeIfPresent(Int.self, forKey: .pendingCrystals) ?? 0
-            ownedSprites = try container.decodeIfPresent([OwnedSprite].self, forKey: .ownedSprites) ?? []
-            ownedArtifacts = try container.decodeIfPresent([OwnedArtifact].self, forKey: .ownedArtifacts) ?? []
-            eventCurrencies = try container.decodeIfPresent([String: Int].self, forKey: .eventCurrencies) ?? [:]
-            eventRunsByID = try container.decodeIfPresent(
-                [String: EventRunProgress].self,
-                forKey: .eventRunsByID
-            ) ?? [:]
+            crystals =
+                try container.decodeIfPresent(Int.self, forKey: .crystals) ?? 0
+            pendingCoins =
+                try container.decodeIfPresent(Int.self, forKey: .pendingCoins)
+                ?? 0
+            pendingCrystals =
+                try container.decodeIfPresent(
+                    Int.self,
+                    forKey: .pendingCrystals
+                ) ?? 0
+            ownedSprites =
+                try container.decodeIfPresent(
+                    [OwnedSprite].self,
+                    forKey: .ownedSprites
+                ) ?? []
+            ownedArtifacts =
+                try container.decodeIfPresent(
+                    [OwnedArtifact].self,
+                    forKey: .ownedArtifacts
+                ) ?? []
+            eventCurrencies =
+                try container.decodeIfPresent(
+                    [String: Int].self,
+                    forKey: .eventCurrencies
+                ) ?? [:]
+            eventRunsByID =
+                try container.decodeIfPresent(
+                    [String: EventRunProgress].self,
+                    forKey: .eventRunsByID
+                ) ?? [:]
         }
     }
 }

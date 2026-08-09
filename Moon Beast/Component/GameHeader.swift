@@ -11,8 +11,8 @@ struct GameHeader: View {
     let progress: GameProgressStore
 
     var body: some View {
-        HStack(alignment: .center, spacing: 18) {
-            VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("LV \(progress.accountLevel)")
                     .font(.system(size: 18, weight: .heavy))
                     .foregroundStyle(.white)
@@ -51,7 +51,7 @@ struct GameHeader: View {
             )
 
             AppResourceLabel(
-                imageName: "icon_pixel_artefact",
+                imageName: "icon_pixel_relic",
                 value: progress.artifactShards,
                 iconSize: 24,
                 fontSize: 13

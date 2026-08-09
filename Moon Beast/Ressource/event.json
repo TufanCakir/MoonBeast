@@ -3,7 +3,7 @@
         {
             "id": "moon_raid",
             "title": "Moon Raid",
-            "bannerImageName": "ground_colorfull",
+            "bannerImageName": "icon_pixel_crystal",
             "currencyName": "Moon Shards",
             "currencyImageName": "icon_pixel_crystal",
             "dailyLimit": 3,
@@ -17,7 +17,7 @@
         {
             "id": "boss_hunt",
             "title": "Boss Hunt",
-            "bannerImageName": "moon_beast_logo",
+            "bannerImageName": "icon_pixel_coin",
             "currencyName": "Boss Tokens",
             "currencyImageName": "icon_pixel_coin",
             "dailyLimit": 2,

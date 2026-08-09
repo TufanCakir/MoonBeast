@@ -15,8 +15,7 @@ struct RootView: View {
 
     var body: some View {
         currentView
-            .ignoresSafeArea()
-        .statusBarHidden(true)
+            .statusBarHidden(true)
     }
 
     @ViewBuilder
@@ -24,7 +23,11 @@ struct RootView: View {
         if !hasStartedGame {
             StartView(hasStartedGame: $hasStartedGame)
         } else if let activeMode {
-            modeView(activeMode)
+            if activeMode == .event {
+                eventShell
+            } else {
+                modeView(activeMode)
+            }
         } else {
             tabShell
         }
@@ -38,19 +41,33 @@ struct RootView: View {
                 activeMode = nil
             }
         case .event:
-            EventView(progress: progress) {
-                activeMode = nil
-            }
+            EventView(progress: progress)
         }
     }
 
     private var tabShell: some View {
         ZStack(alignment: .bottom) {
             selectedTabView
-                .ignoresSafeArea()
 
             Footer(selectedTab: $selectedTab)
                 .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    private var eventShell: some View {
+        ZStack(alignment: .bottom) {
+            EventView(progress: progress)
+
+            Footer(
+                selectedTab: Binding(
+                    get: { selectedTab },
+                    set: { newTab in
+                        selectedTab = newTab
+                        activeMode = nil
+                    }
+                )
+            )
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 

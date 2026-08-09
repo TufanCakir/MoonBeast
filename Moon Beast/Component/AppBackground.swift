@@ -10,7 +10,7 @@ import SwiftUI
 struct AppBackground: View {
     var body: some View {
         ZStack {
-         Image("bg")
+            Image("bg")
                 .resizable()
 
             Color.black.opacity(0.20)

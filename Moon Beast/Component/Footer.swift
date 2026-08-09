@@ -51,10 +51,19 @@ struct Footer: View {
                             .scaledToFit()
 
                         Text(tab.title)
-                            .font(.system(size: 13, weight: .bold))
-                            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
-                            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 2)
-
+                            .font(.system(size: 10, weight: .bold))
+                            .shadow(
+                                color: .black.opacity(0.9),
+                                radius: 3,
+                                x: 0,
+                                y: 2
+                            )
+                            .shadow(
+                                color: .black.opacity(0.9),
+                                radius: 3,
+                                x: 0,
+                                y: 2
+                            )
 
                     }
                     .foregroundStyle(.white)
@@ -64,6 +73,7 @@ struct Footer: View {
             }
         }
         .padding()
+        .padding(.horizontal)
     }
 }
 
